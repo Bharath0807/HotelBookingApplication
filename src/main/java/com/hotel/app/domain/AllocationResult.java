@@ -49,5 +49,13 @@ public class AllocationResult {
 	public void setRevenueEconomy(BigDecimal revenueEconomy) {
 		this.revenueEconomy = revenueEconomy;
 	}
+	
+	public static AllocationResult empty() {
+        return new AllocationResult(
+                0, 0,
+                BigDecimal.ZERO,
+                BigDecimal.ZERO
+        );
+    }
 
 }

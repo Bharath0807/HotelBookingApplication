@@ -1,6 +1,7 @@
 package com.hotel.app.config.impl;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -20,19 +21,36 @@ public class UpgradeAllocationStrategy implements AllocationStrategy {
 		return new AllocationResult(0, 0, BigDecimal.ZERO, BigDecimal.ZERO);
 	}
 
-	public AllocationResult upgrade(int freePremiumRooms, List<GuestBid> economyGuests, int economyRooms) {
+	public AllocationResult upgrade(int freePremiumRooms,List<GuestBid> economyGuests, int economyRooms) {
 
-		int upgrades = Math.min(freePremiumRooms, economyGuests.size() - economyRooms);
+		if (freePremiumRooms <= 0 || economyRooms <= 0) {
+			return AllocationResult.empty();
+		}
+
+		List<GuestBid> safeEconomyGuests = economyGuests == null ? Collections.emptyList() : economyGuests;
+
+		if (safeEconomyGuests.size() <= economyRooms) {
+			return AllocationResult.empty();
+		}
+
+		int upgrades = Math.min(freePremiumRooms, safeEconomyGuests.size() - economyRooms);
+
+		if (upgrades <= 0) {
+			return AllocationResult.empty();
+		}
+
 		int premiumOccupied = 0;
 		int economyOccupied = 0;
 		BigDecimal premiumRevenue = BigDecimal.ZERO;
 		BigDecimal economyRevenue = BigDecimal.ZERO;
 
 		for (int i = 0; i < upgrades; i++) {
-			GuestBid guest = economyGuests.get(i);
+			GuestBid guest = safeEconomyGuests.get(i);
+
 			premiumOccupied++;
-			premiumRevenue = premiumRevenue.add(guest.getAmount());
 			economyOccupied--;
+
+			premiumRevenue = premiumRevenue.add(guest.getAmount());
 			economyRevenue = economyRevenue.subtract(guest.getAmount());
 		}
 

@@ -47,4 +47,18 @@ class AllocationServiceIntegrationTest {
 
 	}
 
+	@Test
+	void noUpgradeWhenEconomyRoomsZero() {
+		AllocationResult result = service.allocateRooms(2, 0, List.of(BigDecimal.valueOf(50), BigDecimal.valueOf(40)));
+
+		assertEquals(0, result.getUsagePremium());
+	}
+
+	@Test
+	void noUpgradeWhenEconomyGuestsEqualToRooms() {
+		AllocationResult result = service.allocateRooms(2, 2, List.of(BigDecimal.valueOf(90), BigDecimal.valueOf(80)));
+
+		assertEquals(0, result.getUsagePremium());
+	}
+
 }
