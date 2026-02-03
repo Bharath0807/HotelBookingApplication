@@ -1,6 +1,7 @@
 package com.hotel.app.config.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -25,7 +26,9 @@ public class EconomyAllocationStrategy implements AllocationStrategy {
 			occupied++;
 			revenue = revenue.add(guest.getAmount());
 		}
-
+//		for (int i = 0; i < occupied; i++) {
+//			economyGuests.remove(0);
+//		}
 		return new AllocationResult(0, occupied, BigDecimal.ZERO, revenue);
 	}
 }

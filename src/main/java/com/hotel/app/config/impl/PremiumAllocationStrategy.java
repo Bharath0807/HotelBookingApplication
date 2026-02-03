@@ -1,6 +1,7 @@
 package com.hotel.app.config.impl;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -19,13 +20,14 @@ public class PremiumAllocationStrategy implements AllocationStrategy {
 		int occupied = 0;
 		BigDecimal revenue = BigDecimal.ZERO;
 
+
 		for (GuestBid guest : premiumGuests) {
 			if (occupied >= premiumRooms)
 				break;
 			occupied++;
 			revenue = revenue.add(guest.getAmount());
-		}
 
+		}
 		return new AllocationResult(occupied, 0, revenue, BigDecimal.ZERO);
 	}
 }

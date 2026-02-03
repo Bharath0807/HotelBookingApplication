@@ -2,7 +2,9 @@ package com.hotel.app.config.impl;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
@@ -14,46 +16,42 @@ import com.hotel.app.domain.GuestBid;
 public class UpgradeAllocationStrategy implements AllocationStrategy {
 
 	@Override
-	public AllocationResult allocate(List<GuestBid> premiumGuests, List<GuestBid> economyGuests, int premiumRooms,
-			int economyRooms) {
-
-		// this strategy only handles upgrades, so base allocation is zero
+	public AllocationResult allocate(List<GuestBid> premiumGuests, List<GuestBid> economyGuests, int premiumRooms, int economyRooms) {
+		// This strategy only handles upgrades, so base allocation is zero
 		return new AllocationResult(0, 0, BigDecimal.ZERO, BigDecimal.ZERO);
 	}
 
-	public AllocationResult upgrade(int freePremiumRooms,List<GuestBid> economyGuests, int economyRooms) {
 
-		if (freePremiumRooms <= 0 || economyRooms <= 0) {
-			return AllocationResult.empty();
-		}
+	public AllocationResult upgrade(List<GuestBid> premiumGuests, List<GuestBid> economyGuests, int premiumRooms, int economyRooms) {
+		// Sort guests by bid descending
+		int premiumAllocated = Math.min(premiumRooms, premiumGuests.size());
+		BigDecimal premiumRevenue = premiumGuests.stream()
+				.limit(premiumAllocated)
+				.map(GuestBid::getAmount)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-		List<GuestBid> safeEconomyGuests = economyGuests == null ? Collections.emptyList() : economyGuests;
+		int freePremiumRooms = premiumRooms - premiumAllocated;
 
-		if (safeEconomyGuests.size() <= economyRooms) {
-			return AllocationResult.empty();
-		}
+		// Upgrade top economy guests to premium if there are free premium rooms
+		int upgrades = Math.min(freePremiumRooms, economyGuests.size());
+		BigDecimal upgradeRevenue = economyGuests.stream()
+				.limit(upgrades)
+				.map(GuestBid::getAmount)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-		int upgrades = Math.min(freePremiumRooms, safeEconomyGuests.size() - economyRooms);
+		// The next economy guests fill economy rooms
+		int economyAllocated = Math.min(economyRooms, economyGuests.size() - upgrades);
+		BigDecimal economyRevenue = economyGuests.stream()
+				.skip(upgrades)
+				.limit(economyAllocated)
+				.map(GuestBid::getAmount)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-		if (upgrades <= 0) {
-			return AllocationResult.empty();
-		}
-
-		int premiumOccupied = 0;
-		int economyOccupied = 0;
-		BigDecimal premiumRevenue = BigDecimal.ZERO;
-		BigDecimal economyRevenue = BigDecimal.ZERO;
-
-		for (int i = 0; i < upgrades; i++) {
-			GuestBid guest = safeEconomyGuests.get(i);
-
-			premiumOccupied++;
-			economyOccupied--;
-
-			premiumRevenue = premiumRevenue.add(guest.getAmount());
-			economyRevenue = economyRevenue.subtract(guest.getAmount());
-		}
-
-		return new AllocationResult(premiumOccupied, economyOccupied, premiumRevenue, economyRevenue);
+		return new AllocationResult(
+				premiumAllocated + upgrades,
+				economyAllocated,
+				upgradeRevenue,
+				economyRevenue
+		);
 	}
 }

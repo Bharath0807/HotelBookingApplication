@@ -1,4 +1,4 @@
-com\hotel\app\PremiumAllocationStrategyTest.class
-com\hotel\app\AllocationServiceIntegrationTest.class
-com\hotel\app\EconomyAllocationStrategyTest.class
-com\hotel\app\GuestClassifierTest.class
+com/hotel/app/GuestClassifierTest.class
+com/hotel/app/AllocationServiceIntegrationTest.class
+com/hotel/app/PremiumAllocationStrategyTest.class
+com/hotel/app/EconomyAllocationStrategyTest.class

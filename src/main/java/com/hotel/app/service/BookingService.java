@@ -45,13 +45,13 @@ public class BookingService {
 
 		// Smart upgrade logic
 		int freePremium = premiumRooms - premiumOccupied;
-		if (freePremium > 0 && economyOccupied == economyRooms && economyGuests.size() > economyRooms) {
-			AllocationResult upgradeResult = upgradeStrategy.upgrade(freePremium, economyGuests, economyRooms);
+		if (freePremium > 0 && economyGuests.size() > economyRooms) {
+			AllocationResult upgradeResult = upgradeStrategy.upgrade(premiumGuests,economyGuests,premiumRooms , economyRooms);
 
-			premiumOccupied += upgradeResult.getUsagePremium();
-			economyOccupied += upgradeResult.getUsageEconomy();
+			premiumOccupied = upgradeResult.getUsagePremium();
+			economyOccupied = upgradeResult.getUsageEconomy();
 			premiumRevenue = premiumRevenue.add(upgradeResult.getRevenuePremium());
-			economyRevenue = economyRevenue.add(upgradeResult.getRevenueEconomy());
+			economyRevenue = upgradeResult.getRevenueEconomy();
 		}
 
 		return new AllocationResult(premiumOccupied, economyOccupied, premiumRevenue, economyRevenue);
