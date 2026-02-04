@@ -25,10 +25,6 @@ public class UpgradeAllocationStrategy implements AllocationStrategy {
 	public AllocationResult upgrade(List<GuestBid> premiumGuests, List<GuestBid> economyGuests, int premiumRooms, int economyRooms) {
 		// Sort guests by bid descending
 		int premiumAllocated = Math.min(premiumRooms, premiumGuests.size());
-		BigDecimal premiumRevenue = premiumGuests.stream()
-				.limit(premiumAllocated)
-				.map(GuestBid::getAmount)
-				.reduce(BigDecimal.ZERO, BigDecimal::add);
 
 		int freePremiumRooms = premiumRooms - premiumAllocated;
 

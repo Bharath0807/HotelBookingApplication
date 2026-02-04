@@ -1,6 +1,7 @@
 package com.hotel.app.service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class BookingService {
 
 		List<GuestBid> premiumGuests = guestClassifier.classifyPremium(bids);
 		List<GuestBid> economyGuests = guestClassifier.classifyEconomy(bids);
+
 
 		AllocationResult premiumResult = premiumStrategy.allocate(premiumGuests, economyGuests, premiumRooms,
 				economyRooms);
